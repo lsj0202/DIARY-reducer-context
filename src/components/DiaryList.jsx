@@ -10,8 +10,8 @@ const sortOptionList = [
 
 const filterOptionList = [
   { value: "all", name: "전부다" },
-  { value: "good", name: "좋은 감정만" },
   { value: "bad", name: "안좋은 감정만" },
+  { value: "good", name: "좋은 감정만" },
 ];
 const ControlMenu = ({ value, onChange, optionList }) => {
   return (
@@ -38,7 +38,7 @@ const DiaryList = ({ diaryList }) => {
 
   const getProcessedDiaryList = () => {
     const filterCallBack = (item) => {
-      if (filter === "good") {
+      if (filter === "bad") {
         return parseInt(item.emotion) >= 3;
       } else {
         return parseInt(item.emotion) < 3;
@@ -78,7 +78,7 @@ const DiaryList = ({ diaryList }) => {
         <div className="right-col">
           <MyButton
             type={"positive"}
-            text={"세 일기 쓰기"}
+            text={"새 일기 쓰기"}
             onClick={() => {
               navigate("/new");
             }}
