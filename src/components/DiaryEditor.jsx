@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import Header from "./Header";
 import MyButton from "./MyButton";
 import { useNavigate } from "react-router-dom";
@@ -36,14 +36,14 @@ const getStringDate = (date) => {
   return date.toISOString().slice(0, 10);
 };
 
-const DiaryEditor = () => {
+const DiaryEditor = ({ isEdit, originData }) => {
   const contentRef = useRef();
   const [content, setContent] = useState("");
   const [emotion, setEmotion] = useState(3);
   const [date, setDate] = useState();
   const navigate = useNavigate();
 
-  const { onCreate } = useContext(DiaryDispatchContext);
+  const { onCreate, onEdit } = useContext(DiaryDispatchContext);
   const prevPage = () => {
     navigate(-1);
   };
@@ -55,15 +55,34 @@ const DiaryEditor = () => {
   const handleSubmit = () => {
     if (content.length < 1) {
       contentRef.current.focus();
+      return;
     }
 
-    onCreate(date, content, emotion);
+    if (
+      window.confirm(
+        isEdit ? "일기를 수정하시겠습니까?" : "새로운 일기를 작성하시겠습니까?"
+      )
+    ) {
+      if (!isEdit) {
+        onCreate(date, content, emotion);
+      } else {
+        onEdit(originData.id, date, content, emotion);
+      }
+    }
     navigate("/", { replace: true });
   };
+
+  useEffect(() => {
+    if (isEdit) {
+      setDate(getStringDate(new Date(parseInt(originData.date))));
+      setEmotion(originData.emotion);
+      setContent(originData.content);
+    }
+  }, [isEdit, originData]);
   return (
     <div>
       <Header
-        text={"새 일기 작성"}
+        headText={isEdit ? "일기 수정 하기" : "새 일기 작성"}
         leftChild={<MyButton text={"< 뒤로가기"} onClick={prevPage} />}
       />
       <div>
@@ -112,7 +131,11 @@ const DiaryEditor = () => {
                 navigate(-1);
               }}
             />
-            <MyButton text="작성완료" type="positive" onClick={handleSubmit} />
+            <MyButton
+              text={isEdit ? "수정완료" : "작성완료"}
+              type="positive"
+              onClick={handleSubmit}
+            />
           </div>
         </section>
       </div>
